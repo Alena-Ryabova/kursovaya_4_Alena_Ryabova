@@ -37,7 +37,9 @@ def user_interaction():
 
         # Сохраняем вакансии в файл JSON
         vacancy_filtered.save_to_json('vacancies.json', vacancies_filter)
-        vacancy_filtered.identify_vacancies()
+
+        vacancy_filtered.display_vacancies()
+
     else:
         print("Вакансий не найдено.")
 

@@ -42,8 +42,8 @@ class FilteredVacancies():
 
             if 'employer' in one:
                 self.company = one['employer']['name']
-            elif 'profession' in one:
-                pass
+            elif 'client' in one:
+                self.company = one['client']['title']
             else:
                 print("Key 'employer' does not exist in the dictionary")
 
@@ -60,7 +60,7 @@ class FilteredVacancies():
             elif 'profession' in one:
                 pass
             else:
-                print("Key 'snippet' does not exist in the dictionary")
+                print("Key 'alternate_url' does not exist in the dictionary")
 
             vacancy_dict = {
                 'Название вакансии:': self.profession,
@@ -71,5 +71,39 @@ class FilteredVacancies():
                 'Ссылка на вакансию:': self.url_vacancy
             }
             self.vacancy_list.append(vacancy_dict)
-            print(self.vacancy_list)
-            return self.vacancy_list
+        sorted_from_salary = sorted(self.vacancy_list,
+                                    key=lambda x: x.get('Зарплата:', {}).get('from') if isinstance(x.get('Зарплата:'),
+                                                                                                   dict) else 0
+                                    )
+        print(sorted_from_salary)
+        return sorted_from_salary
+
+    def display_vacancies(self):
+        for one_vacancy in self.identify_vacancies():
+            if one_vacancy.get('Зарплата:') is not None:
+                salary_from = one_vacancy['Зарплата:'].get('from')
+                if salary_from is not None:
+                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                          f"Зарплата: {salary_from}\n"
+                          f"Компания: {one_vacancy['Компания:']}\n"
+                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                          f"Описание: {one_vacancy['Описание:']}\n"
+                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+                else:
+                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                          f"Зарплата: информация отсутствует\n"
+                          f"Компания: {one_vacancy['Компания:']}\n"
+                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                          f"Описание: {one_vacancy['Описание:']}\n"
+                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+            else:
+                print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                      f"Зарплата: информация отсутствует\n"
+                      f"Компания: {one_vacancy['Компания:']}\n"
+                      f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                      f"Описание: {one_vacancy['Описание:']}\n"
+                      f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+
+
+
+
