@@ -5,15 +5,21 @@ class FilteredVacancies():
 
     @staticmethod
     def save_to_json(file_name, data):
+        """
+        Сохранение полученного списка вакансий в файл
+        """
         with open(file_name, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
     @staticmethod
     def open_json():
-
+        """
+        Открываем файл для чтения
+        """
         with open('vacancies.json', 'r', encoding='utf-8') as f:
             data_dict = json.load(f)
-            return data_dict
+
+        return data_dict
 
     def __init__(self):
         self.profession = None
@@ -25,42 +31,30 @@ class FilteredVacancies():
         self.vacancy_list = []
 
     def identify_vacancies(self):
+        """
+        запись в словарь вакансий с наиболее сокращенной информацией
+        """
         for one in self.open_json():
-            if 'name' in one:
-                self.profession = one["name"]
-            elif 'profession' in one:
-                self.profession = one["profession"]
-            else:
-                print("Key 'name' does not exist in the dictionary")
 
             if 'salary' in one:
-                self.salary = one['salary']
-            elif 'profession' in one:
-                pass
-            else:
-                print("Key 'salary' does not exist in the dictionary")
-
-            if 'employer' in one:
+                self.profession = one["name"]
+                if one['salary'] is not None:
+                    self.salary = one['salary']['from']
+                else:
+                    self.salary = 0
                 self.company = one['employer']['name']
-            elif 'client' in one:
-                self.company = one['client']['title']
-            else:
-                print("Key 'employer' does not exist in the dictionary")
-
-            if 'snippet' in one:
                 self.requirement = one['snippet']['requirement']
                 self.responsibility = one['snippet']['responsibility']
-            elif 'profession' in one:
-                pass
-            else:
-                print("Key 'snippet' does not exist in the dictionary")
-
-            if 'alternate_url' in one:
                 self.url_vacancy = one['alternate_url']
             elif 'profession' in one:
-                pass
+                self.profession = one["profession"]
+                self.salary = one['payment_from']
+                self.company = one['client'].get('title', 'Нет информации')
+                self.requirement = ''
+                self.responsibility = one['candidat']
+                self.url_vacancy = one['link']
             else:
-                print("Key 'alternate_url' does not exist in the dictionary")
+                print("Key 'name' does not exist in the dictionary")
 
             vacancy_dict = {
                 'Название вакансии:': self.profession,
@@ -71,31 +65,29 @@ class FilteredVacancies():
                 'Ссылка на вакансию:': self.url_vacancy
             }
             self.vacancy_list.append(vacancy_dict)
-        sorted_from_salary = sorted(self.vacancy_list,
-                                    key=lambda x: x.get('Зарплата:', {}).get('from') if isinstance(x.get('Зарплата:'),
-                                                                                                   dict) else 0
-                                    )
-        print(sorted_from_salary)
-        return sorted_from_salary
+
+        return self.vacancy_list
+
+    def sorted_vacancy(self):
+        """
+        Сортировка вакансий по зарплате
+        """
+        sorted_vacancy = sorted(self.identify_vacancies(), key=lambda x: x['Зарплата:'])
+        return sorted_vacancy
 
     def display_vacancies(self):
-        for one_vacancy in self.identify_vacancies():
-            if one_vacancy.get('Зарплата:') is not None:
-                salary_from = one_vacancy['Зарплата:'].get('from')
-                if salary_from is not None:
-                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
-                          f"Зарплата: {salary_from}\n"
-                          f"Компания: {one_vacancy['Компания:']}\n"
-                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
-                          f"Описание: {one_vacancy['Описание:']}\n"
-                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
-                else:
-                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
-                          f"Зарплата: информация отсутствует\n"
-                          f"Компания: {one_vacancy['Компания:']}\n"
-                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
-                          f"Описание: {one_vacancy['Описание:']}\n"
-                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+        """
+        Вывод результата в консоль
+        """
+        for one_vacancy in self.sorted_vacancy():
+
+            if one_vacancy['Зарплата:'] != 0:
+                print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                      f"Зарплата от: {one_vacancy['Зарплата:']}\n"
+                      f"Компания: {one_vacancy['Компания:']}\n"
+                      f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                      f"Описание: {one_vacancy['Описание:']}\n"
+                      f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
             else:
                 print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
                       f"Зарплата: информация отсутствует\n"
@@ -104,6 +96,5 @@ class FilteredVacancies():
                       f"Описание: {one_vacancy['Описание:']}\n"
                       f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
 
-
-
-
+            if one_vacancy is not self.sorted_vacancy()[-1]:
+                print("-*" * 100)  # Разделительная линия из 50 дефисов

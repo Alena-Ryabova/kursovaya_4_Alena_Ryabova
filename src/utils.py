@@ -29,7 +29,7 @@ class VacancyHh(Vacancy):
         params = {
             "area": 113,  # Код региона (1 для Москвы)
             "text": search_query,  # Ключевое слово для поиска, предоставленное пользователем
-            "per_page": 20  # Количество вакансий на странице
+            "per_page": 5  # Количество вакансий на странице
         }
         try:
             response_hh = requests.get(url=self.url, params=params,
@@ -58,7 +58,7 @@ class VacancySj(Vacancy):
             response_sj = requests.get(url=self.url, headers={'X-Api-App-Id': self.sj_api}, params={'keyword': key})
             if response_sj.status_code == 200:
                 data = response_sj.json()
-                print(data)
+
                 vacancies = data['objects']
                 return vacancies
 
