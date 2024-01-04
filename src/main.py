@@ -10,7 +10,7 @@ def user_interaction():
 
     user_choice_sort = input("Введите ключевое слово для фильтрации  ")
 
-    vacancy = None
+    vacancy = None # Переменная для выбранной пользователем площадки
 
     if int(user_choice_site) == 1:  # Определяем площадку для поиска
         vacancy = VacancyHh()
@@ -21,24 +21,21 @@ def user_interaction():
 
     vacancies_filter = vacancy.get_api(user_choice_sort)
     vacancy_filtered = FilteredVacancies()
+
     if vacancies_filter:
-        count_vacancy = 0
+        count_vacancy = 0  # Счетчик для подсчета кол-ва найденых вакансий
         for one in vacancies_filter:
-            if 'name' in one:
-                count_vacancy += 1
-
-            elif 'profession' in one:
-                count_vacancy += 1
-
-            else:
-                print("Key 'name' does not exist in the dictionary")
+            count_vacancy += 1
 
         print(f'Найдено {count_vacancy} вакансий')
 
         # Сохраняем вакансии в файл JSON
         vacancy_filtered.save_to_json('vacancies.json', vacancies_filter)
+        print(f'Вакансии отсортированы по зарплате от большей к меньшей')
 
-        vacancy_filtered.display_vacancies()
+        number_of_vacancy = input(f'Какое колличество вакансий вывести?  Введите значение от 1 до {count_vacancy}   \n')
+
+        vacancy_filtered.display_vacancies(number_of_vacancy)
 
     else:
         print("Вакансий не найдено.")
