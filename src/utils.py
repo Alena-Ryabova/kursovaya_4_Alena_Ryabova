@@ -27,9 +27,9 @@ class VacancyHh(Vacancy):
          """
 
         params = {
-            "area": 113,  # Код региона (1 для Москвы)
+            "area": 113,  # Код региона 113-Россия
             "text": search_query,  # Ключевое слово для поиска, предоставленное пользователем
-            "per_page": 5  # Количество вакансий на странице
+            "per_page": 100  # Количество вакансий на странице
         }
         try:
             response_hh = requests.get(url=self.url, params=params,

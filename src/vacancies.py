@@ -11,16 +11,6 @@ class FilteredVacancies():
         with open(file_name, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=4)
 
-    @staticmethod
-    def open_json():
-        """
-        Открываем файл для чтения
-        """
-        with open('vacancies.json', 'r', encoding='utf-8') as f:
-            data_dict = json.load(f)
-
-        return data_dict
-
     def __init__(self):
         self.profession = None
         self.salary = None
@@ -29,16 +19,24 @@ class FilteredVacancies():
         self.requirement = None
         self.responsibility = None
         self.vacancy_list = []
+        self._open_json()
+
+    def _open_json(self):
+        """
+        Открываем файл для чтения
+        """
+        with open('vacancies.json', 'r', encoding='utf-8') as f:
+            self.data_dict = json.load(f)
 
     def identify_vacancies(self):
         """
         запись в словарь вакансий с наиболее сокращенной информацией
         """
-        for one in self.open_json():
+        for one in self.data_dict:
 
             if 'salary' in one:
                 self.profession = one["name"]
-                if one['salary'] is not None:
+                if one['salary'] and one['salary']['from'] is not None:
                     self.salary = one['salary']['from']
                 else:
                     self.salary = 0
@@ -72,29 +70,36 @@ class FilteredVacancies():
         """
         Сортировка вакансий по зарплате
         """
-        sorted_vacancy = sorted(self.identify_vacancies(), key=lambda x: x['Зарплата:'])
+        sorted_vacancy = sorted(self.identify_vacancies(), key=lambda x: x['Зарплата:'], reverse=True)
         return sorted_vacancy
 
-    def display_vacancies(self):
+    def display_vacancies(self, number):
         """
         Вывод результата в консоль
         """
+        print("-*" * 100)  # Разделительная линия
+        count = 0  # Счетчик для колличества вывода вакансий
         for one_vacancy in self.sorted_vacancy():
+            if count < int(number):  # Проверка, что счетчик меньше выбранного пользователем
 
-            if one_vacancy['Зарплата:'] != 0:
-                print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
-                      f"Зарплата от: {one_vacancy['Зарплата:']}\n"
-                      f"Компания: {one_vacancy['Компания:']}\n"
-                      f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
-                      f"Описание: {one_vacancy['Описание:']}\n"
-                      f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+                if one_vacancy['Зарплата:'] != 0:
+                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                          f"Зарплата от: {one_vacancy['Зарплата:']}\n"
+                          f"Компания: {one_vacancy['Компания:']}\n"
+                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                          f"Описание: {one_vacancy['Описание:']}\n"
+                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+                else:
+                    print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
+                          f"Зарплата: информация отсутствует\n"
+                          f"Компания: {one_vacancy['Компания:']}\n"
+                          f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
+                          f"Описание: {one_vacancy['Описание:']}\n"
+                          f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
+
+                count += 1
+
+                if one_vacancy is not self.sorted_vacancy()[-1]:
+                    print("-*" * 100)  # Разделительная линия
             else:
-                print(f"Название вакансии: {one_vacancy['Название вакансии:']}\n"
-                      f"Зарплата: информация отсутствует\n"
-                      f"Компания: {one_vacancy['Компания:']}\n"
-                      f"Требования и обязанности: {one_vacancy['Требования и обязанности:']}\n"
-                      f"Описание: {one_vacancy['Описание:']}\n"
-                      f"Ссылка на вакансию: {one_vacancy['Ссылка на вакансию:']}\n")
-
-            if one_vacancy is not self.sorted_vacancy()[-1]:
-                print("-*" * 100)  # Разделительная линия из 50 дефисов
+                break
